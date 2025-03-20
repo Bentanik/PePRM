@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,14 +17,20 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.baiexam.db.AppDatabase;
+import com.example.baiexam.model.Sach;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class BookDetailActivity extends AppCompatActivity {
 
-    private TextView txtBookId, txtAuthorName, txtBookCategory, txtBookTitle, txtPublishDate;
+    private TextView txtAuthorName, txtBookCategory, txtBookTitle, txtPublishDate;
+    private Sach book;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,20 +38,15 @@ public class BookDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_book_detail);
 
         // Ánh xạ view
-        txtBookId = findViewById(R.id.txtBookId);
         txtAuthorName = findViewById(R.id.txtAuthorName);
         txtBookCategory = findViewById(R.id.txtBookCategory);
         txtBookTitle = findViewById(R.id.txtBookTitle);
         txtPublishDate = findViewById(R.id.txtPublishDate);
 
-        // Nhận dữ liệu từ Intent
-        String bookId = getIntent().getStringExtra("book_id");
-        // Gán dự liệu
-        txtBookId.setText(bookId);
-        txtAuthorName.setText("Tác giả");
-        txtBookCategory.setText("Sách");
-        txtBookTitle.setText("Tiêu đề");
-        txtPublishDate.setText("Ngày xuất bản");
+        int bookId = getIntent().getIntExtra("BOOK_ID", -1);
+        if (bookId != -1) {
+            loadBookDetails(bookId);
+        }
 
         // Xử lý khi nhấn vào chỉnh sửa
         TextView txtEdit = findViewById(R.id.txtEdit);
@@ -52,16 +54,22 @@ public class BookDetailActivity extends AppCompatActivity {
 
         // Xử lý khi xóa
         TextView txtDelete = findViewById(R.id.txtDelete);
-        txtDelete.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Xác nhận xóa")
-                    .setMessage("Bạn có chắc chắn muốn xóa?")
-                    .setPositiveButton("Có", (dialog, which) -> {
-                        // TODO: Gọi hàm xóa ở đây
-                        Toast.makeText(this, "Đã xóa!", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("Không", (dialog, which) -> dialog.dismiss())
-                    .show();
+        txtDelete.setOnClickListener(v -> { confirmDelete();
+        });
+    }
+
+    private void loadBookDetails(int bookId) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            book = AppDatabase.getInstance(this).sachDao().loadSachById(bookId);
+            String authorName = AppDatabase.getInstance(this).tacGiaDao().loadTacGiaById(book.getIdTacGia()).getTenTacGia();
+            runOnUiThread(() -> {
+                if (book != null) {
+                    txtBookTitle.setText(book.getTenSach());
+                    txtAuthorName.setText(authorName);
+                    txtPublishDate.setText(book.getNgayXB());
+                    txtBookCategory.setText(book.getTheLoai());
+                }
+            });
         });
     }
 
@@ -74,13 +82,17 @@ public class BookDetailActivity extends AppCompatActivity {
         TextInputEditText edtBookTitle = dialogView.findViewById(R.id.edtBookTitle);
         TextInputEditText edtPublishDate = dialogView.findViewById(R.id.edtPublishDate);
         TextInputEditText edtCategory = dialogView.findViewById(R.id.edtCategory);
-        AutoCompleteTextView spinnerAuthors = dialogView.findViewById(R.id.spinnerAuthors);
         Button btnSubmitBook = dialogView.findViewById(R.id.btnSubmitBook);
 
-        // Danh sách tác giả
-        List<String> authors = Arrays.asList("Tác giả A", "Tác giả B", "Tác giả C");
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, authors);
+        Spinner spinnerAuthors = dialogView.findViewById(R.id.spinnerAuthors);
+        List<String> singleItemList = new ArrayList<String>();
+        singleItemList.add(txtAuthorName.getText().toString());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, singleItemList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerAuthors.setAdapter(adapter);
+        spinnerAuthors.setEnabled(false); // Disables selection
+        spinnerAuthors.setClickable(false); // Prevents clicks
+        spinnerAuthors.setFocusable(false); // Avoids focus
 
         // Thêm dữ liệu vào
         TextView label = dialogView.findViewById(R.id.label);
@@ -89,7 +101,6 @@ public class BookDetailActivity extends AppCompatActivity {
         edtBookTitle.setText(txtBookTitle.getText().toString());
         edtPublishDate.setText(txtPublishDate.getText().toString());
         edtCategory.setText(txtBookCategory.getText().toString());
-        spinnerAuthors.setText(authors.get(0), false);
 
         // Gọi sự kiện
         AlertDialog dialog = builder.create();
@@ -97,12 +108,44 @@ public class BookDetailActivity extends AppCompatActivity {
             String title = edtBookTitle.getText().toString();
             String publishDate = edtPublishDate.getText().toString();
             String category = edtCategory.getText().toString();
-            String author = spinnerAuthors.getText().toString();
+            if (title.isEmpty() || publishDate.isEmpty() || category.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            Toast.makeText(this, "Đã lưu: " + title + " - " + author, Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
+            book.setTenSach(title);
+            book.setNgayXB(publishDate);
+            book.setTheLoai(category);
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                AppDatabase.getInstance(this).sachDao().updateSach(book);
+                runOnUiThread(() -> {
+                    loadBookDetails(book.getIdSach());
+                    dialog.dismiss();
+                    Toast.makeText(this, "Book updated successfully", Toast.LENGTH_SHORT).show();
+                });
+            });
         });
 
         dialog.show();
+    }
+
+    private void confirmDelete() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Book")
+                .setMessage("Are you sure you want to delete this book?")
+                .setPositiveButton("Yes", (dialog, which) -> deleteBook())
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void deleteBook() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase.getInstance(this).sachDao().deleteSach(book);
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Book deleted successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            });
+        });
     }
 }

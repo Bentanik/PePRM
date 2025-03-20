@@ -8,35 +8,34 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:orientation="vertical"
         android:background="@color/white"
-        >
+        android:orientation="vertical"
+        android:padding="20dp">
 
         <TextView
             android:id="@+id/label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thêm Sách Mới"
-            android:textSize="18sp"
-            android:textStyle="bold"
             android:gravity="center"
+            android:paddingBottom="12dp"
+            android:text="Thêm Sách Mới"
             android:textColor="@color/black"
-            android:paddingBottom="12dp"/>
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:boxStrokeColor="#6200EE"
+            app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp">
+            app:boxStrokeColor="#6200EE">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtBookTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Tên Sách"
-                android:padding="18dp"/>
+                android:padding="18dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -49,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Ngày Xuất Bản (dd/MM/yyyy)"
-                android:padding="18dp"/>
+                android:padding="18dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -62,30 +61,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Thể Loại"
-                android:padding="18dp"/>
+                android:padding="18dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
+
+        <Spinner
+            android:id="@+id/spinnerAuthors"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:endIconMode="dropdown_menu">
+            android:hint="Chọn tác giả"
+            android:padding="18dp" />
 
-            <AutoCompleteTextView
-                android:id="@+id/spinnerAuthors"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Chọn tác giả"
-                android:padding="18dp"/>
-        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSubmitBook"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lưu Sách"
             android:layout_marginTop="16dp"
-            app:cornerRadius="8dp"
-            app:backgroundTint="#6200EE"/>
+            android:text="Lưu Sách"
+            app:backgroundTint="#6200EE"
+            app:cornerRadius="8dp" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
