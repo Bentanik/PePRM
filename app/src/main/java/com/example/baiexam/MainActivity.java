@@ -1,5 +1,7 @@
 package com.example.baiexam;
 
+import static com.example.baiexam.R.layout.activity_main;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -157,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 AppDatabase.getInstance(this).sachDao().insertSach(sach);
                 runOnUiThread(() -> {
                     loadListAuthors();
+                    Toast.makeText(this, "Add Book Successfully", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 });
             });
@@ -203,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
             Executors.newSingleThreadExecutor().execute(() -> {
                 AppDatabase.getInstance(this).tacGiaDao().insertTacGia(tacGia);
                 runOnUiThread(() -> {
+                    Toast.makeText(this, "Add author successfully", Toast.LENGTH_SHORT).show();
                     loadListAuthors();
                     dialog.dismiss();
                 });

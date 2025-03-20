@@ -141,6 +141,7 @@ public class AuthorDetailActivity extends AppCompatActivity {
             Executors.newSingleThreadExecutor().execute(() -> {
                 AppDatabase.getInstance(this).tacGiaDao().updateTacGia(author);
                 runOnUiThread(() -> {
+                    Toast.makeText(this, "Edit Author Successfully", Toast.LENGTH_SHORT).show();
                     // Refresh UI
                     loadAuthorDetails();
                     dialog.dismiss();
@@ -168,7 +169,10 @@ public class AuthorDetailActivity extends AppCompatActivity {
         if (author != null) {
             new Thread(() -> {
                 AppDatabase.getInstance(this).tacGiaDao().deleteTacGia(author);
-                runOnUiThread(() -> finish()); // Close dialog after deletion
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Delete Author Successfully", Toast.LENGTH_SHORT).show();
+                    finish();
+                }); // Close dialog after deletion
             }).start();
         }
     }
