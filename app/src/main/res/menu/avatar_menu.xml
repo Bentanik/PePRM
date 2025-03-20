@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_create_auth"
+        android:title="Tạo tác giả"/>
+    <item
+        android:id="@+id/menu_create_book"
+        android:title="Tạo sách"/>
+    <item
+        android:id="@+id/menu_logout"
+        android:title="Đăng xuất"/>
+</menu>
