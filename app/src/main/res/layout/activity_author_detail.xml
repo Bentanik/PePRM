@@ -109,7 +109,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#333"
-        android:text="📚 Danh sách sách của tác giả"
+        android:text="Danh sách sách của tác giả"
         android:paddingTop="16dp"
         android:paddingBottom="8dp"/>
 

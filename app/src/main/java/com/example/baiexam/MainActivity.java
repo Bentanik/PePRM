@@ -117,11 +117,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAddBookDialog() {
+        // Create Dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_book, null);
         builder.setView(dialogView);
 
+        // Mapping View
         TextInputEditText edtBookTitle = dialogView.findViewById(R.id.edtBookTitle);
         TextInputEditText edtPublishDate = dialogView.findViewById(R.id.edtPublishDate);
         TextInputEditText edtCategory = dialogView.findViewById(R.id.edtCategory);
@@ -142,24 +144,32 @@ public class MainActivity extends AppCompatActivity {
         });
 
         AlertDialog dialog = builder.create();
+
+        // Handle Submit
         btnSubmitBook.setOnClickListener(v -> {
+            // Get Data from Edit Text
             String title = edtBookTitle.getText().toString();
             String publishDate = edtPublishDate.getText().toString();
             String category = edtCategory.getText().toString();
             int selectedPosition = spinnerAuthors.getSelectedItemPosition();
 
+            // Validation
             if (title.isEmpty() || publishDate.isEmpty() || category.isEmpty() || selectedPosition == -1) {
                 Toast.makeText(this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            //Add to Database
             Executors.newSingleThreadExecutor().execute(() -> {
                 TacGia selectedAuthor = authorsList.get(selectedPosition);
                 Sach sach = new Sach(title, publishDate, category, selectedAuthor.getIdTacGia());
+                // Add DB
                 AppDatabase.getInstance(this).sachDao().insertSach(sach);
                 runOnUiThread(() -> {
+                    // Load List again
                     loadListAuthors();
                     Toast.makeText(this, "Add Book Successfully", Toast.LENGTH_SHORT).show();
+                    // Hide dialog
                     dialog.dismiss();
                 });
             });
@@ -186,16 +196,19 @@ public class MainActivity extends AppCompatActivity {
 
         // Bắt sự kiện Submit
         btnSubmitAuthor.setOnClickListener(v -> {
+            // Get Data from Edit Text
             String name = edtAuthorName.getText().toString().trim();
             String email = edtAuthorEmail.getText().toString().trim();
             String address = edtAuthorAddress.getText().toString().trim();
             String phone = edtAuthorPhone.getText().toString().trim();
 
+            // Validation
             if (name.isEmpty() || email.isEmpty() || address.isEmpty() || phone.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Create TacGia Object to insert
             TacGia tacGia = new TacGia();
             tacGia.setTenTacGia(name);
             tacGia.setEmail(email);
@@ -207,7 +220,9 @@ public class MainActivity extends AppCompatActivity {
                 AppDatabase.getInstance(this).tacGiaDao().insertTacGia(tacGia);
                 runOnUiThread(() -> {
                     Toast.makeText(this, "Add author successfully", Toast.LENGTH_SHORT).show();
+                    // Load List again
                     loadListAuthors();
+                    // Hide dialog
                     dialog.dismiss();
                 });
             });
@@ -217,8 +232,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadListAuthors() {
         Executors.newSingleThreadExecutor().execute(() -> {
+            // Get All
             authorsList = AppDatabase.getInstance(this).tacGiaDao().getAllTacGia();
             runOnUiThread(() -> {
+                // Setup adapter
                 adapter = new ListViewAdapterForTacGia(this, authorsList);
                 listViewAuthors.setAdapter(adapter);
             });
