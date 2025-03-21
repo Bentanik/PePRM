@@ -25,15 +25,15 @@ import com.google.android.material.button.MaterialButton;
 public class LoginActivy extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 100;
-    GoogleSignInClient mGoogleSignInClient;
+    private GoogleSignInClient mGoogleSignInClient;
+    private Button btnSignIn;
 
-    Button btnSignIn, btnSignOut;
-    TextView tvEmail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login_activy);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -56,11 +56,14 @@ public class LoginActivy extends AppCompatActivity {
             finish();
         }
 
+        // Initialize Sign In button
+        btnSignIn = findViewById(R.id.btnLoginGoogle);
+
+        // Google Sign-In button click listener
         MaterialButton btnLoginGoogle = findViewById(R.id.btnLoginGoogle);
-        btnLoginGoogle.setOnClickListener(v -> {
-            signIn();
-        });
+        btnLoginGoogle.setOnClickListener(v -> signIn());
     }
+
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -68,10 +71,8 @@ public class LoginActivy extends AppCompatActivity {
 
     private void signOut() {
         mGoogleSignInClient.signOut().addOnCompleteListener(this, task -> {
-            Toast.makeText(LoginActivy.this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
-            tvEmail.setText("");
+            Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
             btnSignIn.setVisibility(Button.VISIBLE);
-            btnSignOut.setVisibility(Button.GONE);
         });
     }
 
@@ -83,9 +84,12 @@ public class LoginActivy extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                //tvEmail.setText(account.getDisplayName());
-                btnSignOut.setVisibility(Button.VISIBLE);
-                btnSignIn.setVisibility(Button.GONE);
+                Log.d("Account", account.getDisplayName());
+                btnSignIn.setVisibility(Button.VISIBLE);
+                // Redirect user after successful login
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                finish();
             } catch (ApiException e) {
                 Log.e("SignInError", "Sign in failed: " + e.getStatusCode());
                 Toast.makeText(this, "Đăng nhập thất bại: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();

@@ -28,6 +28,9 @@ import com.example.baiexam.adapter.ListViewAdapterForTacGia;
 import com.example.baiexam.db.AppDatabase;
 import com.example.baiexam.model.Sach;
 import com.example.baiexam.model.TacGia;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -38,6 +41,7 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
+    private GoogleSignInClient mGoogleSignInClient;
     private ListViewAdapterForTacGia adapter;
     private ListView listViewAuthors;
     private List<TacGia> authorsList;
@@ -52,6 +56,13 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Config google
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         // Popup menu
         ImageView avatar = findViewById(R.id.imgAvatar);
@@ -68,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                     showAddBookDialog();
                     return true;
                 } else if (item.getItemId() == R.id.menu_logout) {
-                    Toast.makeText(MainActivity.this, "Đăng xuất", Toast.LENGTH_SHORT).show();
+                    signOut();
                     return true;
                 }
                 return false;
@@ -113,6 +124,19 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("author_id", selectedAuthor.getIdTacGia());  // Pass only the ID
                 startActivity(intent);
             }
+        });
+    }
+
+    private void signOut() {
+        mGoogleSignInClient.signOut().addOnCompleteListener(this, task -> {
+            // Đăng xuất thành công
+            Toast.makeText(MainActivity.this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
+
+            // Quay lại màn hình đăng nhập
+            Intent intent = new Intent(this, LoginActivy.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish(); // Kết thúc MainActivity
         });
     }
 
